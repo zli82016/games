@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+#core {
+	border-collapse: collapse;
+}
+
+td {
+	width: 20px;
+	height: 20px;
+	border: 1px solid gray;
+}
+
+.snake {
+	background-color: red;
+}
+
+.food {
+	background-color: green;
+}
+
+</style>
+</head>
+<body>
+<div>Please use the arrow keys (up, down, left, right) in the keyboard to control the snake.</div>
+<table id="core">
+
+</table>
+
+<script>
+const row = 10, col = 10;
+var interval, snakeCellNum = 22, snakeCell, foodCellNum, cells, directKey = 39;
+
+function initBoard(){
+	var frag = document.createDocumentFragment();
+	for(let i = 0; i < row; i++){
+		let rowCon = document.createElement('tr');
+		for(let j = 0; j < col; j++){
+			rowCon.appendChild(document.createElement('td'));
+		}
+		frag.appendChild(rowCon);
+	}
+	document.getElementById('core').appendChild(frag);
+	cells = document.getElementsByTagName('td');
+
+	drawSnakeAndFood();
+
+	document.onkeydown = keydown;
+}
+
+function keydown(event){
+	console.log("keycode " + event.keyCode)
+	if(event.keyCode >= 37 && event.keyCode <= 40){
+		// Change dir
+		directKey = event.keyCode;
+	}
+}
+
+function drawSnakeAndFood(){
+	// Draw the snake
+	cells[snakeCellNum].classList.add('snake');
+	snakeCell = cells[snakeCellNum];
+
+	drawFood();
+}
+
+function drawFood(){
+
+	// Draw food
+	while(true){
+		let randomNum = Math.floor(Math.random() * row * col);
+		if(randomNum !== snakeCellNum){
+			foodCellNum = randomNum;
+			cells[foodCellNum].classList.add('food');
+			break;
+		}
+	}
+}
+
+function moveSnake(){
+	var dirs = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+
+	var resetSnake = function(){
+		snakeCellNum = 22;
+		snakeCell = cells[snakeCellNum];		
+	}
+
+	interval = setInterval(function(){
+
+		snakeCell.classList.remove('snake');
+
+		if(directKey === 39){
+			snakeCell = snakeCell.nextElementSibling;
+			if(snakeCell === null){
+				alert("Reach the wall");
+				resetSnake();
+			}
+			else{
+				snakeCellNum++;
+			}	
+		}
+		else if(directKey === 37){
+			snakeCell = snakeCell.previousElementSibling;
+			if(snakeCell === null){
+				alert("Reach the wall");
+				resetSnake();		
+			}
+			else{
+				snakeCellNum--;				
+			}
+
+		}
+		else if(directKey === 38){
+			let siblingRow = snakeCell.parentElement.previousElementSibling;
+			if(siblingRow === null){
+				alert("Reach the wall");
+				resetSnake();				
+			}
+			else{
+				snakeCell = siblingRow.children[snakeCellNum % col];
+				snakeCellNum -= col;				
+			}
+
+		}
+		else{
+			let siblingRow = snakeCell.parentElement.nextElementSibling;
+			if(siblingRow === null){
+				alert("Reach the wall");
+				resetSnake();			
+			}
+			else{
+				snakeCell = siblingRow.children[snakeCellNum % col];
+				snakeCellNum += col;
+			}
+		}
+
+		snakeCell.classList.add('snake');
+		// Eat food
+		if(snakeCellNum === foodCellNum){
+
+			console.log(snakeCellNum + " class " + snakeCell.classList);
+			//setTimeout(function(){
+				snakeCell.classList.remove('food');
+				drawFood();
+			//}, 200)
+
+		}
+
+	}, 400);
+}
+
+window.onload = function(){
+	initBoard();
+	moveSnake();
+};
+</script>
+</body>
+</html>
