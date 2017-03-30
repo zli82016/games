@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+* {
+	box-sizing: border-box;
+}
+
+.core {
+	width: 215px;
+}
+
+#output {
+	border: 1px solid black;
+	height: 30px;
+	text-align: right;
+	padding: 5px;
+}
+
+button {
+	width: 50px;
+	height: 30px;
+	margin-top: 5px;
+}
+
+</style>
+</head>
+<body>
+	<div class="core">
+		<div id="output">0</div>
+		<div class="keyboard">
+			<button value="7">7</button>
+			<button value="8">8</button>
+			<button value="9">9</button>
+			<button value="+">+</button>
+			<button value="4">4</button>
+			<button value="5">5</button>
+			<button value="6">6</button>
+			<button value="-">-</button>
+			<button value="1">1</button>
+			<button value="2">2</button>
+			<button value="3">3</button>
+			<button value="*">*</button>
+			<button value="0">0</button>
+			<button value="">&nbsp;</button>
+			<button value="=">=</button>	
+			<button value="/">/</button>
+		</div>
+	</div>
+
+<script>
+	function init(){
+		let stack = [], preSign = '+', result = 0, number = '0', expression = '0';
+		let keyboard = document.querySelector('.keyboard');
+
+		keyboard.addEventListener('click', function(event){
+			const  charCode0 = '0'.charCodeAt(0);
+			const  charCode9 = '9'.charCodeAt(0);
+
+			let output = document.getElementById('output');
+
+			let target = event.target;
+			if(target.nodeName.toLowerCase() === 'button'){
+				let buttonVal = target.value;
+
+				// If the current digit is 0;
+				if(buttonVal){
+							
+					// Digit button is pressed
+					if(charCode0 <= buttonVal.charCodeAt(0) && buttonVal.charCodeAt(0) <= charCode9){
+						console.log("buttonVal " + buttonVal);
+
+
+						if(number === '0'){ // value of button is string?
+							number = buttonVal; 
+						}
+						else{
+							number += buttonVal;
+						}
+
+						if(expression === '0'){
+							expression = buttonVal;
+						}
+						else{
+							expression += buttonVal;
+						}
+					}
+					else if(buttonVal === '='){ // = key is pressed
+						handleKeyValue(preSign, number, stack);
+						console.log("stack "+ stack);
+						
+						// Calculate the result
+						while(stack.length > 0){
+							console.log("stack[0]  " + stack[0] );
+							result += stack.shift();
+						}
+						console.log("result " + result);
+						// Show the result
+						expression = result + '';
+						preSign = '+';
+						number = result + '';
+						result = 0;
+					}
+					else if(buttonVal === '+' || buttonVal === '-' || buttonVal === '*' || buttonVal === '/'){ // operand key is pressed
+						handleKeyValue(preSign, number, stack);
+						preSign = buttonVal;
+						number = '0';
+						expression += buttonVal;
+						
+					}
+					output.innerHTML = expression;
+				}
+			}
+		});
+	}
+
+	function handleKey(event, stack, preSign, result, number){
+
+	}
+
+
+	function handleKeyValue(preSign, number, stack){
+		if(preSign === '+'){
+			stack.push(parseInt(number) );
+		}
+		else if(preSign === '-'){
+			stack.push(-parseInt(number));
+		}
+		else if(preSign === '*'){
+			stack.push( stack.pop() * parseInt(number) );
+		}
+		else if(preSign === '/'){
+			if(number === '0'){
+				alert("The divisor cannot be 0.");
+			}
+			else{
+				stack.push( Math.floor(stack.pop() / parseInt(number)) );
+			}
+		}
+	}
+
+	window.onload = function(){
+		init();
+	};
+</script>
+</body>
+</html>
