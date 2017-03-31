@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">  
+
+<style>
+* {
+	box-sizing: border-box;
+}
+.row {
+	clear: both;
+}
+
+.field {
+  width: 50px;
+  height: 50px;
+  float: left;
+  border: 1px solid black;
+  line-height: 50px;
+}
+
+.board {
+  text-align: center;
+  overflow: hidden;
+}
+
+.covered {
+	background-color: gray;
+}
+
+.hidden {
+	display: none;
+}
+
+.failure {
+	color: red;
+}
+
+.info {
+	margin-top: 10px;
+}
+
+#newGame {
+	width: 85px;
+	height: 25px;
+	margin-top: 10px;
+	display: block;
+}
+
+#result {
+	margin-left: 10px;
+	display: inline-block;
+}
+</style>
+</head>
+<body>
+	<div class="board">
+
+	</div>
+	<div class="info">
+		<span>Mines Left: 5</span><span id="result"></span> 
+		<button id="newGame">New Game</button>
+	</div>
+	<script>
+		window.onload = function(){
+			initBoard();
+
+			onClickHandler();
+
+			document.getElementById('newGame').addEventListener('click', initBoard);
+		}
+
+		function initBoard(){
+
+			var board = document.querySelector(".board");
+			var row = 7, col = 7, numOfBombs = 5, radomNum, bombFields = [], numbers;
+			var neighbors = [-9, -8, -7, -1, 1, 7, 8, 9];
+
+			var numOfCells = row * col;
+			numbers = new Array(numOfCells);
+			numbers.fill(0);
+
+			var cells = '';
+
+			for(var i = 0; i < row; i++){
+				cells += '<div class="row">'
+				for(var j = 0; j < col; j++){
+					cells += '<div class="field covered"></div>';
+				}
+				cells += '</div>';
+			}
+
+			board.innerHTML = cells;
+
+			var fields = document.querySelectorAll('.field');
+
+			// Random put bombs
+			for(i = 0; i < numOfBombs; i++){
+				randomNum = Math.floor(Math.random() * numOfCells);
+				if(bombFields.indexOf(randomNum) === -1){
+					bombFields.push(randomNum);
+					fields[randomNum].innerHTML = '<i class="fa fa-bomb hidden"></i>';
+					fields[randomNum].dataset.marked = 'mine';
+				}
+				else{
+					i--;
+				}
+			}
+
+			console.log("bombFields " + bombFields);
+			// Set numbers
+			bombFields.forEach(function(field){
+				neighbors.forEach(function(pos){
+					var neighbor = field + pos;
+					console.log("neighbor " + neighbor);
+					if(neighbor >= 0 && neighbor < numOfCells && bombFields.indexOf(neighbor) === -1){ // Valid field
+						numbers[neighbor]++;
+					}
+				});
+			});
+
+			console.log("numbers " + numbers);
+
+			numbers.forEach(function(number, index){
+				if(number !== 0){
+					fields[index].innerHTML = '<span class="hidden">'+ number + '</span>';
+				}
+			});
+		}
+
+		// Once user clicks on a cell, uncover it.
+		//
+		function onClickHandler(){
+			var board = document.querySelector(".board");
+			board.addEventListener('click', function(event){
+				let target = event.target;
+				if(target.classList.contains('field')){
+					target.classList.remove('covered');
+
+					if( target.children.length > 0){
+						target.children[0].classList.remove('hidden');
+					}
+
+					if(target.dataset.marked === 'mine'){
+						let result = document.getElementById('result');
+						result.innerHTML = 'Failure';
+						result.classList.add('failure');
+					}					
+				}
+			})			
+		}
+	</script>
+</body>
+</html>

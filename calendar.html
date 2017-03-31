@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+* {
+	box-sizing: border-box;
+}
+
+body {
+	background: #e0e0e0;
+}
+
+#cal {
+	width: 280px;
+}
+
+.header {
+	background-color: red;
+	color: white;
+	height: 30px;
+	line-height: 30px;
+	text-align: center;
+	border-radius: inherit;
+	text-transform: uppercase;
+	border-top-left-radius: 5px;
+	border-top-right-radius: 5px;
+}
+
+#dates {
+	border-collapse: collapse;
+}
+
+td {
+	width: 40px;
+	height: 40px;
+	text-align: center;
+	cursor: default;
+}
+
+#dates thead td:first-child {
+	border-left: 1px solid #e6e6e6;
+}
+
+#dates thead td:last-child {
+	border-right: 1px solid #e6e6e6;
+}
+
+#dates tbody td {
+	border: 1px solid #e6e6e6;	
+	text-transform: uppercase;
+}
+
+#dates tbody td:not(.nil):hover {
+	background-color: red;
+}
+
+.today {
+	background-color: gray;
+}
+
+
+</style>
+</head>
+<body>
+	<div id="cal">
+		<div class="header"><span class="curMonYear">March 2017</span></div>
+		<table id="dates">
+			<thead id="days">
+				<tr><td>SUN</td><td>MON</td><td>TUE</td><td>WED</td><td>THU</td><td>FRI</td><td>SAT</td></tr>
+			</thead>
+			<tbody id="calFrame">
+			</tbody>
+		</table>
+	</div>
+
+<script>
+	function CALENDAR(){
+		const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+		const numCells = 35;
+		var cache = {};
+
+		function init(){
+			var date = new Date();
+			var year = date.getFullYear();
+			var month = date.getMonth();
+			createCal(year, month);			
+		}
+
+		function createCal(year, month){
+			var tableContent = '';
+			if(cache.hasOwnProperty(year) && cache[year].hasOwnProperty(month) ){
+				tableContent = cache[year][month];
+			}
+			else{
+
+				const  totalDays = [31, (year%400 === 0 || (year%100 !== 0 && year%4 === 0)) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+				var calFrame = document.getElementById('calFrame');
+				
+				var date = new Date();
+				var today = date.getDate();
+				// Show month and year
+				document.querySelector('.curMonYear').innerHTML = months[month] + ' ' + year;
+
+				// Show the dates;
+				// Decide the day of the first day of the month
+				var firstDate = new Date(year, month);
+				var firstDay = firstDate.getDay(); // which day of the week
+				var currDay = 1;
+
+				for(let i = 0; i < numCells; i++){
+					if(i % 7 === 0){
+						tableContent += '<tr>';
+					}
+
+					if(firstDay <= i && i < firstDay + totalDays[month] ){
+						tableContent += '<td' + (firstDay + today - 1 === i ? ' class="today"' : '') + '>'+ (i - firstDay + 1) + '</td>';
+					}
+					else {
+						tableContent += '<td class="nil">&nbsp;</td>';			
+					}
+
+					if(i % 7 === 6){
+						tableContent += '</tr>';
+					}
+				}
+
+				if( !cache.hasOwnProperty(year) ){
+					cache[year] = {};
+				}
+
+				cache[year][month] = tableContent;
+			}
+
+			calFrame.innerHTML = tableContent;
+
+		}
+
+		return {
+			init: init
+		};
+	}
+
+	window.onload = function() {
+		var calendar = CALENDAR();
+		calendar.init();
+	}
+</script>
+</body>
+</html>
