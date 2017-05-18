@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+* {
+	box-sizing: border-box;
+}
+
+.ticTacToe {
+	width: 200px;
+	text-align: center;
+}
+
+#board{
+	display: inline-block;
+}
+
+button {
+	width: 50px;
+	height: 50px;
+	background-color: #14bdac;
+	border-top: none;
+	border-left: none;
+	outline: none;
+	font-size: 20px;
+	cursor: pointer;
+}
+
+button:last-child {
+	border-right: none;
+}
+
+div:last-child button {
+	border-bottom: none;
+}
+
+#restart {
+	width: 70%;
+	border-bottom: none;
+	margin-top: 20px;
+	border-right: none;
+}
+</style>
+</head>
+<body>
+	<div class="ticTacToe">
+	<h1>Tic-Tac-Toe</h1>
+	<div id="board">
+		<div>
+			<button>&nbsp;</button><button>&nbsp;</button><button>&nbsp;</button>
+		</div>
+		<div>
+			<button>&nbsp;</button><button>&nbsp;</button><button>&nbsp;</button>
+		</div>
+		<div>
+			<button>&nbsp;</button><button>&nbsp;</button><button>&nbsp;</button>
+		</div>
+	</div>
+	<button id="restart">Restart Game</button>
+	</div>
+<script>
+var game = {};
+
+// Init the game
+function init(){
+	game = {
+		isCircle: true,
+		diagnol: 0,
+		antidiagnol: 0, 
+		count: 0,
+		row: [0, 0, 0],
+		col: [0, 0, 0]
+	};
+}
+
+// Check if any player wins
+function checkWin(i, j){
+	let score;
+	if(game.isCircle){
+		score = 1;
+	}
+	else{
+		score = -1;
+	}
+
+	game.row[i] += score;
+	game.col[j] += score;
+
+	if(i === j){
+		game.diagnol += score;
+	}
+
+	if(i + j === 2){
+		game.antidiagnol += score;
+	}
+
+	if(Math.abs(game.row[i]) === 3 || Math.abs(game.col[j]) === 3 || Math.abs(game.diagnol) === 3 || Math.abs(game.antidiagnol) === 3 ){
+		return score; // If the score is 1 , circle wins
+	}
+
+}
+
+// Clear the board and reset the game
+function clearGame() {
+	// Reset the game
+	init();
+
+	var buttons = document.querySelectorAll('#board button');
+	for(let i = 0; i < buttons.length; i++){
+		buttons[i].innerHTML = '&nbsp;';
+		buttons[i].disabled = false;
+	}
+}
+
+function showMsg(msg) {
+	setTimeout(function(){
+		alert(msg + " Restarting the game ...");
+	}, 1);
+}
+
+function ticTacToe(){
+	document.getElementById('restart').addEventListener('click', clearGame);
+
+	// Set the click handler for each cell
+	var buttons = document.querySelectorAll('#board button');
+	for(let i = 0; i < buttons.length; i++){
+		buttons[i].addEventListener('click', function(e){
+			let target = e.target;
+			if(target.nodeName === 'BUTTON'){
+
+				// Set the value of the cell
+				if(game.isCircle){
+					target.innerHTML = 'O';
+				}
+				else{
+					target.innerHTML = 'X';
+				}
+
+				target.disabled = true;
+				game.count++;
+
+				// Check if the player wins or not
+
+				let res = checkWin(Math.floor(i / 3), i % 3);
+				if(res === 1){
+					showMsg("Circle Wins!");
+
+					setTimeout(clearGame,  1000);
+					return;
+				}
+				else if(res === -1){
+					showMsg("Cross Wins!");
+
+					setTimeout(clearGame,  1000);
+					return;
+				}
+
+				// Check if no player wins
+				if(game.count === 9){
+					showMsg("Draw!");
+
+					setTimeout(clearGame,  1000);
+				}
+
+				// Change to next player's turn
+				game.isCircle = !game.isCircle;
+			}
+		})
+	}
+}
+
+window.onload = function(){
+	init();
+
+	ticTacToe();
+}
+
+</script>
+
+</body>
+</html>
